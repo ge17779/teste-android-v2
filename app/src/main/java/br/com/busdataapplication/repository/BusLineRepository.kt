@@ -6,6 +6,7 @@ import br.com.busdataapplication.models.BusLine
 import br.com.busdataapplication.models.BusStop
 import br.com.busdataapplication.network.NetworkConnection.Companion.service
 import br.com.busdataapplication.network.NetworkConnection.Companion.token
+import br.com.busdataapplication.network.responses.BusStopResponse
 import br.com.busdataapplication.network.responses.BusesResponse
 import retrofit2.Call
 import retrofit2.Callback
@@ -111,12 +112,12 @@ class BusLineRepository {
         })
     }
 
-    fun getBusesAndBusStopsByLine(line: BusLine, callback: CompletionCallback? = null) {
-        getBusStopsByLine(line.lineCode, object : CompletionCallback {
+    fun getBusesAndBusStopsByLine(line: BusLine, callback: CompletionCallback?) {
+        getBusStopsByLine(line.id, object : CompletionCallback {
             override fun onSuccess(any: Any) {
                 val busStops = any as List<BusStop>
                 line.busStops = busStops
-                getBusesByLine(line.lineCode, object : CompletionCallback {
+                getBusesByLine(line.id, object : CompletionCallback {
                     override fun onSuccess(any: Any) {
                         val response = any as BusesResponse
                         line.buses = response.buses
@@ -135,4 +136,24 @@ class BusLineRepository {
         })
     }
 
+    fun getEstimatedByBusStop(stopCode: Int, callback: CompletionCallback?){
+        service.getEstimatedArrival(stopCode).enqueue(object : Callback<BusStopResponse> {
+            override fun onResponse(
+                call: Call<BusStopResponse>,
+                response: Response<BusStopResponse>
+            ) {
+                if (response.isSuccessful) {
+                    callback?.onSuccess(response.body()!!)
+                } else {
+                    Log.e(TAG, "onResponse: ${response.message()}")
+                    callback?.onFailure("Falha na requisição")
+                }
+            }
+
+            override fun onFailure(call: Call<BusStopResponse>, t: Throwable) {
+                Log.e(TAG, "onFailure: ${t.message.toString()}")
+                callback?.onFailure("Falha na requisição")
+            }
+        })
+    }
 }

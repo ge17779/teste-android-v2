@@ -12,5 +12,17 @@ data class Bus(
     @SerializedName("py")
     val latitude: Double?,
     @SerializedName("px")
-    val longitude: Double?
-)
+    val longitude: Double?,
+    @SerializedName("t")
+    val estimatedArrival: String?
+) {
+    override fun toString(): String {
+        return "Bus(" +
+                "prefix=$prefix, " +
+                "isAccessible=$isAccessible, " +
+                "utc=$utc, " +
+                "latitude=$latitude, " +
+                "longitude=$longitude, " +
+                "estimatedArrival=$estimatedArrival)"
+    }
+}

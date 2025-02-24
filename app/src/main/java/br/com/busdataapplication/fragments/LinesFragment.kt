@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.busdataapplication.R
@@ -17,7 +16,7 @@ import br.com.busdataapplication.viewmodel.MainViewModel
 
 class LinesFragment(private val callback: InfoCallback? = null): Fragment(), AdapterView.OnItemClickListener {
 
-    private val viewModel: MainViewModel by activityViewModels()
+    private val viewModel = MainViewModel()
     private lateinit var recyclerView: RecyclerView
     private val adapter = LinesAdapter(ArrayList(), this)
 
@@ -36,7 +35,7 @@ class LinesFragment(private val callback: InfoCallback? = null): Fragment(), Ada
         initListeners()
 
         val text = arguments?.getString("text")
-        text?.let { getLinesByParam(it) }
+        text?.let { viewModel.getLinesByParam(it) }
 
         return view
     }
@@ -49,7 +48,7 @@ class LinesFragment(private val callback: InfoCallback? = null): Fragment(), Ada
     }
 
     private fun initListeners(){
-        viewModel.line.observe(viewLifecycleOwner) {
+        viewModel.busLine.observe(viewLifecycleOwner) {
             callback?.onLinesCallback(it)
         }
         viewModel.busLines.observe(viewLifecycleOwner) {

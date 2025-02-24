@@ -11,7 +11,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import br.com.busdataapplication.callbacks.InfoCallback
 import br.com.busdataapplication.fragments.LinesFragment
-import br.com.busdataapplication.fragments.StopBusFragment
+import br.com.busdataapplication.fragments.BusStopFragment
 import br.com.busdataapplication.models.BusLine
 import br.com.busdataapplication.viewmodel.MainViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity(), InfoCallback {
 
         // Exibe o primeiro fragmento ao abrir o app
         if (savedInstanceState == null) {
-            loadFragment(StopBusFragment())
+            loadFragment(BusStopFragment())
         }
     }
 
@@ -71,9 +71,9 @@ class MainActivity : AppCompatActivity(), InfoCallback {
                     val bundle = Bundle()
                     bundle.putString("line", Gson().toJson(line))
                     Log.d(TAG, "initListeners: $line")
-                    val stopBusFragment = StopBusFragment()
-                    stopBusFragment.arguments = bundle
-                    loadFragment(stopBusFragment)
+                    val busStopFragment = BusStopFragment()
+                    busStopFragment.arguments = bundle
+                    loadFragment(busStopFragment)
                 }
             }
             true

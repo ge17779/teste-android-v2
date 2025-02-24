@@ -83,5 +83,68 @@
             tools:text="Jardim Brasil - Metrô Carandiru"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/estimated_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_color"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/russo_one_regular"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:text="Nome da Parada: "/>
+
+            <TextView
+                android:id="@+id/stop_bus_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/varta_variable_font_weight"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:text="Nome da Parada"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/russo_one_regular"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:text="Previsão de chegada: "/>
+
+            <TextView
+                android:id="@+id/estimated_arrival_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/varta_variable_font_weight"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:text="N/A"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import br.com.busdataapplication.callbacks.CompletionCallback
 import br.com.busdataapplication.models.BusLine
 import br.com.busdataapplication.models.BusStop
+import br.com.busdataapplication.network.responses.BusStopResponse
 import br.com.busdataapplication.repository.BusLineRepository
 import kotlinx.coroutines.launch
 
@@ -15,16 +16,33 @@ class MainViewModel : ViewModel() {
 
     private val repository = BusLineRepository()
     private val _isLoading = MutableLiveData(true)
-    private val _line = MutableLiveData<BusLine>()
+    private val _busLine = MutableLiveData<BusLine>()
+    private val _busStop = MutableLiveData<BusStopResponse>()
     private val _busStops = MutableLiveData<List<BusStop>>()
     private val _busLines = MutableLiveData<List<BusLine>>()
     val isLoading: LiveData<Boolean> get() = _isLoading
-    val line: LiveData<BusLine> = _line
+    val busLine: LiveData<BusLine> = _busLine
+    val busStop: LiveData<BusStopResponse> = _busStop
     val busStops: LiveData<List<BusStop>> = _busStops
     val busLines: LiveData<List<BusLine>> = _busLines
 
     companion object {
         private const val TAG = "MainViewModel"
+
+        fun getEstimatedArrival(info: BusStopResponse, line: BusLine?): String? {
+            line?.let {
+                val busStop = info.busStop
+                busStop?.busLines?.forEach {
+                    if (it.id == line.id){
+                        it.buses?.takeIf{ buses -> buses.isNotEmpty()
+                        }?.first()?.let { bus ->
+                            return bus.estimatedArrival
+                        }
+                    }
+                }
+            }
+            return "N/A"
+        }
     }
 
     fun auth(){
@@ -78,7 +96,23 @@ class MainViewModel : ViewModel() {
             override fun onSuccess(any: Any) {
                 if (any is BusLine){
                     viewModelScope.launch {
-                        _line.value = any
+                        _busLine.value = any
+                    }
+                }
+            }
+
+            override fun onFailure(error: String) {
+                // Show error warning
+            }
+        })
+    }
+
+    fun getEstimatedByBusStop(stopCode: Int){
+        repository.getEstimatedByBusStop(stopCode, object : CompletionCallback {
+            override fun onSuccess(any: Any) {
+                if (any is BusStopResponse){
+                    viewModelScope.launch {
+                        _busStop.value = any
                     }
                 }
             }

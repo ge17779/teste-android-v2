@@ -3,6 +3,7 @@ package br.com.busdataapplication.network
 import br.com.busdataapplication.models.BusStop
 import br.com.busdataapplication.models.BusLine
 import br.com.busdataapplication.network.responses.BusLinesResponse
+import br.com.busdataapplication.network.responses.BusStopResponse
 import br.com.busdataapplication.network.responses.BusesResponse
 import okhttp3.Cookie
 import okhttp3.CookieJar
@@ -92,4 +93,9 @@ interface OlhoVivoService {
     fun getBusesByLine(
         @Query("codigoLinha") lineCode: Int
     ): Call<BusesResponse>
+
+    @GET("Previsao/Parada")
+    fun getEstimatedArrival(
+        @Query("codigoParada") stopCode: Int
+    ): Call<BusStopResponse>
 }

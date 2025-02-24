@@ -6,7 +6,7 @@ data class BusLine(
     @SerializedName("c")
     val destinationSign: String?,
     @SerializedName("cl")
-    val lineCode: Int,
+    val id: Int,
     @SerializedName("lt")
     val firstNumericSign: String?,
     @SerializedName("tl")
@@ -30,7 +30,7 @@ data class BusLine(
     override fun toString(): String {
         return "BusLine(" +
                 "destinationSign=$destinationSign, " +
-                "lineCode=$lineCode, " +
+                "lineCode=$id, " +
                 "firstNumericSign=$firstNumericSign, " +
                 "secondNumericSign=$secondNumericSign, " +
                 "sense=$sense, " +
