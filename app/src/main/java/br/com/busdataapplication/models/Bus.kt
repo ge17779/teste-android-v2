@@ -2,7 +2,7 @@ package br.com.busdataapplication.models
 
 import com.google.gson.annotations.SerializedName
 
-data class Vehicle(
+data class Bus(
     @SerializedName("p")
     val prefix: String?,
     @SerializedName("a")

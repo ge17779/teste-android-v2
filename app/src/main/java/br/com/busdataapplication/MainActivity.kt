@@ -2,101 +2,100 @@ package br.com.busdataapplication
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import br.com.busdataapplication.callbacks.CompletionCallback
-import br.com.busdataapplication.models.Line
-import br.com.busdataapplication.utils.BitmapUtils
-import br.com.busdataapplication.viewmodel.MapViewModel
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import androidx.fragment.app.Fragment
+import br.com.busdataapplication.callbacks.InfoCallback
+import br.com.busdataapplication.fragments.LinesFragment
+import br.com.busdataapplication.fragments.StopBusFragment
+import br.com.busdataapplication.models.BusLine
+import br.com.busdataapplication.viewmodel.MainViewModel
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.gson.Gson
 
-class MainActivity : AppCompatActivity(), CompletionCallback, OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), InfoCallback {
 
-    private val viewModel = MapViewModel()
-    private lateinit var mMap: GoogleMap
-    private val positionButton: Button by lazy { findViewById(R.id.position_button) }
-    private val markerIcon: BitmapDescriptor by lazy { BitmapDescriptorFactory.fromBitmap(
-        BitmapUtils.getBitmapFromVectorDrawable(this, R.drawable.ic_bus)) }
+    private val viewModel = MainViewModel()
+    private lateinit var bottomNavigationView: BottomNavigationView
+    private lateinit var splashScreen: SplashScreen
+    private lateinit var searchView: EditText
+    private var text: String = ""
+    private var line: BusLine? = null
 
     companion object {
         private const val TAG = "MainActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen: SplashScreen = installSplashScreen()
+        splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        splashScreen.setKeepOnScreenCondition { viewModel.isLoading.value == true }
-
+        initViews()
         initListeners()
-        viewModel.auth(this)
+        viewModel.auth()
 
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        // Exibe o primeiro fragmento ao abrir o app
+        if (savedInstanceState == null) {
+            loadFragment(StopBusFragment())
+        }
+    }
+
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .commit()
+    }
+
+    private fun initViews() {
+        searchView = findViewById(R.id.search_lines)
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
     }
 
     private fun initListeners() {
-        positionButton.setOnClickListener {
-            loadVehicles()
-        }
-    }
-
-    private val fetchLinesCallback : CompletionCallback = object : CompletionCallback {
-        override fun onSuccess(any: Any) {
-            if (any is List<*>){
-                mMap.clear()
-                addMarkers(any as List<Line>)
+        splashScreen.setKeepOnScreenCondition { viewModel.isLoading.value == true }
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_lines -> {
+                    val bundle = Bundle()
+                    bundle.putString("text", text)
+                    val linesFragment = LinesFragment(this)
+                    linesFragment.arguments = bundle
+                    loadFragment(linesFragment)
+                }
+                R.id.nav_stop -> {
+                    val bundle = Bundle()
+                    bundle.putString("line", Gson().toJson(line))
+                    Log.d(TAG, "initListeners: $line")
+                    val stopBusFragment = StopBusFragment()
+                    stopBusFragment.arguments = bundle
+                    loadFragment(stopBusFragment)
+                }
             }
+            true
         }
-
-        override fun onFailure(error: String) {
-            Log.e(TAG, "onFailure: $error")
-        }
-    }
-
-    private fun loadVehicles(){
-        viewModel.getVehiclesPosition(fetchLinesCallback)
-    }
-
-    fun moveCamera(){
-        // Exemplo: adiciona um marcador no centro de São Paulo
-        val saoPaulo = LatLng(-23.5505, -46.6333)
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(saoPaulo, 12f))
-    }
-
-    fun addMarkers(lines: List<Line>){
-        lines.forEach{ line ->
-            line.vehicles.forEach { vehicle ->
-                mMap.addMarker(
-                    MarkerOptions()
-                        .position(LatLng(vehicle.latitude!!, vehicle.longitude!!))
-                        .title("${line.busDestinationSign} - ${line.busDestination}")
-                        .icon(markerIcon))
+        searchView.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
+                text = searchView.text.toString()
+                val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+                if (fragment is LinesFragment){
+                    fragment.getLinesByParam(text)
+                } else {
+                    bottomNavigationView.selectedItemId = R.id.nav_lines
+                }
+                true
+            } else {
+                false
             }
         }
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        moveCamera()
-    }
-
-    override fun onSuccess(any: Any) {
-
-    }
-
-    override fun onFailure(error: String) {
-
+    override fun onLinesCallback(line: BusLine) {
+        this.line = line
+        bottomNavigationView.selectedItemId = R.id.nav_stop
     }
 }

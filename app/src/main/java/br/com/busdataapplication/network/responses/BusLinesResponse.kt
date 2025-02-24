@@ -1,18 +1,18 @@
 package br.com.busdataapplication.network.responses
 
-import br.com.busdataapplication.models.Line
+import br.com.busdataapplication.models.BusLine
 import com.google.gson.annotations.SerializedName
 
-data class AllVehiclesResponse(
+data class BusLinesResponse(
     @SerializedName("hr")
     val hour: String?,
     @SerializedName("l")
-    val lines: List<Line>
+    val busLines: List<BusLine>
 ) {
     override fun toString(): String {
         return "VehiclesPositionResponse {" +
                 "hour='$hour', " +
-                "lines=$lines" +
+                "lines=$busLines" +
                 "}"
     }
 }

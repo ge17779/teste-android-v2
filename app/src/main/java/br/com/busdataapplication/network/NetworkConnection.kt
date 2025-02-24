@@ -1,6 +1,9 @@
 package br.com.busdataapplication.network
 
-import br.com.busdataapplication.network.responses.AllVehiclesResponse
+import br.com.busdataapplication.models.BusStop
+import br.com.busdataapplication.models.BusLine
+import br.com.busdataapplication.network.responses.BusLinesResponse
+import br.com.busdataapplication.network.responses.BusesResponse
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
@@ -18,6 +21,7 @@ class NetworkConnection {
     companion object {
         val token: String = "fdb12f8567b3420f85ddb4f6a446083ae79eff094a7cb66508848e63887d70eb"
         val baseUrl: String = "https://api.olhovivo.sptrans.com.br/v2.1/"
+        val service = retrofit().create(OlhoVivoService::class.java)
 
         fun retrofit(): Retrofit {
             val retrofit = Retrofit.Builder()
@@ -67,5 +71,25 @@ interface OlhoVivoService {
 
     @GET("Posicao")
     fun getVehiclesPosition(
-    ): Call<AllVehiclesResponse>
+    ): Call<BusLinesResponse>
+
+    @GET("Parada/Buscar")
+    fun getBusStopsByParam(
+        @Query("termosBusca") nearHere: String
+    ): Call<List<BusStop>>
+
+    @GET("Parada/BuscarParadasPorLinha")
+    fun getBusStopsByLine(
+        @Query("codigoLinha") lineCode: Int
+    ): Call<List<BusStop>>
+
+    @GET("Linha/Buscar")
+    fun getLinesByParam(
+        @Query("termosBusca") param: String
+    ): Call<List<BusLine>>
+
+    @GET("Posicao/Linha")
+    fun getBusesByLine(
+        @Query("codigoLinha") lineCode: Int
+    ): Call<BusesResponse>
 }
